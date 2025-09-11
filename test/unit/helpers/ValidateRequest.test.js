@@ -14,19 +14,23 @@ describe("ValidateRequest helper functions", () => {
     });
 
     test("should throw an error when passing an accountID of null", () => {
-      expect(() => helper.validateAccountID(null)).toThrow();
+      expect(() => helper.validateAccountID(null)).toThrowError(TypeError);
     });
 
     test("should throw an error when passing an accountID of undefined", () => {
-      expect(() => helper.validateAccountID(undefined)).toThrow();
+      expect(() => helper.validateAccountID(undefined)).toThrowError(TypeError);
     });
 
     test("should throw an error when passing accountID of string type", () => {
-      expect(() => helper.validateAccountID("1234")).toThrow();
+      expect(() => helper.validateAccountID("1234")).toThrowError(TypeError);
+    });
+
+    test("should throw an error when passing accountID of decimal type", () => {
+      expect(() => helper.validateAccountID(12.3)).toThrowError(TypeError);
     });
 
     test("should throw an error when passing an accountID with a negative value", () => {
-      expect(() => helper.validateAccountID(-1)).toThrow();
+      expect(() => helper.validateAccountID(-1)).toThrowError(TypeError);
     });
 
     test("should not throw an error when passing accountID where value is greater than zero", () => {
