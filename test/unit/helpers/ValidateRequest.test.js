@@ -1,6 +1,7 @@
 import { describe, test, vi, expect } from "vitest";
 
 import * as helper from "../../../src/helpers/ValidateRequest.js";
+import TicketTypeRequest from "../../../src/pairtest/lib/TicketTypeRequest";
 
 describe("ValidateRequest helper functions", () => {
  
@@ -40,5 +41,59 @@ describe("ValidateRequest helper functions", () => {
     test("should not throw an error when passing accountID where value is zero", () => {
       expect(() => helper.validateAccountID(0)).not.toThrow();
     });    
+  });
+
+  describe("Validate ticket type request", () => {
+    test("should be defined", () => {
+      expect(helper.validateTicketRequest).toBeDefined();
+    });
+
+    test("should throw an error when the TicketTypeRequest is not an array", () => {
+      expect(() => helper.validateTicketRequest(null)).toThrow();
+    });
+
+    test("should throw an error when the TicketTypeRequest is empty", () => {
+      expect(() => helper.validateTicketRequest([])).toThrow();
+    });
+
+    test("should throw an error when the TicketTypeRequest exceeds the max number of items", () => {
+      expect(() => helper.validateTicketRequest([
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("CHILD", 2),
+        new TicketTypeRequest("INFANT", 2),
+      ])).toThrow();
+    });
+
+    test("should throw an error when the TicketTypeRequest contains duplicate types", () => {
+      expect(() => helper.validateTicketRequest([
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("INFANT", 2),
+      ])).toThrow();
+    });
+
+    test("should throw an error when the TicketTypeRequest contains an invalid type", () => {
+      expect(() => helper.validateTicketRequest([
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("SENIOR", 1),
+      ])).toThrow();
+    });  
+
+    test("should throw an error when the TicketTypeRequest contains 0 tickets", () => {
+      expect(() => helper.validateTicketRequest([
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("CHILD", 0),
+        new TicketTypeRequest("INFANT", 0),
+      ])).toThrow();
+    });
+
+    test("should not throw an error when the TicketTypeRequest contains valid types and counts", () => {
+      expect(() => helper.validateTicketRequest([
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("CHILD", 2),
+        new TicketTypeRequest("INFANT", 1),
+      ])).not.toThrow();
+    });
   });
 });
