@@ -3,6 +3,11 @@ import logger from "../utils/logger.js";
 import InvalidPurchaseException from "../pairtest/lib/InvalidPurchaseException.js";
 import { TICKET_TYPE_MAP, TICKET_TYPES } from "../utils/constants.js";
 
+/**
+ * 
+ * @param {Number} accountId 
+ * @description validates the account is numeric. Throws error when invalid
+ */
 export const validateAccountID = (accountId) => {
 
   logger.debug({ message: "In validateAccountID()" });
@@ -35,7 +40,7 @@ const hasDuplicates = (ticketTypeRequests) => {
 /**
  * 
  * @param {Array} ticketTypeRequests 
- * @description validates the ticket types are rules about ticket presence
+ * @description validates the ticket types and throws an error when invalid
  */
 export const validateTicketRequest = (ticketTypeRequests) => {
   logger.debug({ message: "In validateTicketTypes()" });
@@ -57,7 +62,36 @@ export const validateTicketRequest = (ticketTypeRequests) => {
       throw new TypeError("Invalid ticket type");
     }
     if (ticket.getNoOfTickets() <= 0) {
-      throw new InvalidPurchaseException("Expected at least one ticket");
+      throw new TypeError("Expected at least one ticket");
     }
   });
+}
+
+/**
+ * 
+ * @param {Array} ticketTypeRequests 
+ * @description validates the request against the business rules. Throws an error when invalid.
+ * Assumes validateTicketRequest() has been called first to validate the array.
+ */
+export const validatePurchaseTypeRules = (ticketTypeRequests) => {
+  logger.debug({ message: "In validatePurchaseTypeRules()" });
+
+  //Validate in order or precedence - require at least 1 adult which means no need
+  //to check explicitly for child + infant without an adult.
+  //Then check number of infants, if present match up with number of adults as it is a
+  //requirement that an infant will be sat on an adults lap.
+  const adult = _.find(ticketTypeRequests, (type) => type.getTicketType() === "ADULT");
+  if (!adult) {
+    throw new InvalidPurchaseException("Requires at least 1 adult to be present");
+  }
+
+  const infant = _.find(ticketTypeRequests, (type) => type.getTicketType() === "INFANT")
+  if (infant?.getNoOfTickets() > adult.getNoOfTickets()) {
+    throw new InvalidPurchaseException("Requires at least 1 adult per infant to be present");
+  }
+
+  const ticketCount = _.sum(_.map(ticketTypeRequests, (item) => item.getNoOfTickets()));
+  if (ticketCount < 1 || ticketCount > 25) {
+    throw new InvalidPurchaseException("Must have at least one ticket or maximum of 25 tickets")
+  }
 }
