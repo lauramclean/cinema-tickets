@@ -49,11 +49,13 @@ describe("ValidateRequest helper functions", () => {
     });
 
     test("should throw an error when the TicketTypeRequest is not an array", () => {
-      expect(() => helper.validateTicketRequest(null)).toThrow();
+      expect(() => helper.validateTicketRequest(null))
+        .toThrowError("Invalid request type - requires at least 1 ticket request to be present");
     });
 
     test("should throw an error when the TicketTypeRequest is empty", () => {
-      expect(() => helper.validateTicketRequest([])).toThrow();
+      expect(() => helper.validateTicketRequest([]))
+        .toThrowError("Invalid request type - requires at least 1 ticket request to be present");
     });
 
     test("should throw an error when the TicketTypeRequest exceeds the max number of items", () => {
@@ -62,7 +64,7 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest("ADULT", 2),
         new TicketTypeRequest("CHILD", 2),
         new TicketTypeRequest("INFANT", 2),
-      ])).toThrow();
+      ])).toThrowError("Number of ticket types exceeds maximum supported types");
     });
 
     test("should throw an error when the TicketTypeRequest contains duplicate types", () => {
@@ -70,14 +72,14 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest("ADULT", 2),
         new TicketTypeRequest("ADULT", 2),
         new TicketTypeRequest("INFANT", 2),
-      ])).toThrow();
+      ])).toThrowError("Must only have one instance of each ticket type");
     });
 
     test("should throw an error when the TicketTypeRequest contains an invalid type", () => {
       expect(() => helper.validateTicketRequest([
         new TicketTypeRequest("ADULT", 2),
         new TicketTypeRequest("SENIOR", 1),
-      ])).toThrow();
+      ])).toThrowError("type must be ADULT, CHILD, or INFANT");
     });  
 
     test("should throw an error when the TicketTypeRequest contains 0 tickets", () => {
@@ -85,7 +87,7 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest("ADULT", 2),
         new TicketTypeRequest("CHILD", 0),
         new TicketTypeRequest("INFANT", 0),
-      ])).toThrow();
+      ])).toThrowError("Expected at least one ticket");
     });
 
     test("should not throw an error when the TicketTypeRequest contains valid types and counts", () => {
