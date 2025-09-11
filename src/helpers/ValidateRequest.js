@@ -1,7 +1,7 @@
 import * as _ from "es-toolkit/compat";
 import logger from "../utils/logger.js";
 import InvalidPurchaseException from "../pairtest/lib/InvalidPurchaseException.js";
-import { TICKET_TYPE_MAP, TICKET_TYPES } from "../utils/constants.js";
+import * as constants from "../utils/constants.js";
 
 /**
  * 
@@ -12,7 +12,7 @@ export const validateAccountID = (accountId) => {
 
   logger.debug({ message: "In validateAccountID()" });
 
-  if (!Number.isInteger(accountId) || accountId < 0) {
+  if (!Number.isInteger(accountId) || accountId < constants.MIN_ACCOUNT_ID_VALUE) {
     throw new TypeError("Invalid account ID - must be greater than 0");
   }
 }
@@ -23,7 +23,7 @@ export const validateAccountID = (accountId) => {
  * @returns { boolean } returns true if the ticket type provided exists in the valid types
  * @description validates the ticket type
  */
-const isValidType = (ticketType) => { return TICKET_TYPES.includes(ticketType) }
+const isValidType = (ticketType) => { return constants.TICKET_TYPES.includes(ticketType) }
 
 /**
  * 
@@ -49,7 +49,7 @@ export const validateTicketRequest = (ticketTypeRequests) => {
     throw new TypeError("Invalid request type - requires at least 1 ticket request to be present");
   }
 
-  if (ticketTypeRequests.length > TICKET_TYPE_MAP.length) {
+  if (ticketTypeRequests.length > constants.TICKET_TYPE_MAP.length) {
     throw new TypeError("Number of ticket types exceeds maximum supported types");
   }
 
@@ -80,18 +80,18 @@ export const validatePurchaseTypeRules = (ticketTypeRequests) => {
   //to check explicitly for child + infant without an adult.
   //Then check number of infants, if present match up with number of adults as it is a
   //requirement that an infant will be sat on an adults lap.
-  const adult = _.find(ticketTypeRequests, (type) => type.getTicketType() === "ADULT");
+  const adult = _.find(ticketTypeRequests, (type) => type.getTicketType() === constants.TICKET_TYPE_ADULT);
   if (!adult) {
     throw new InvalidPurchaseException("Requires at least 1 adult to be present");
   }
 
-  const infant = _.find(ticketTypeRequests, (type) => type.getTicketType() === "INFANT")
+  const infant = _.find(ticketTypeRequests, (type) => type.getTicketType() === constants.TICKET_TYPE_INFANT)
   if (infant?.getNoOfTickets() > adult.getNoOfTickets()) {
     throw new InvalidPurchaseException("Requires at least 1 adult per infant to be present");
   }
 
   const ticketCount = _.sum(_.map(ticketTypeRequests, (item) => item.getNoOfTickets()));
-  if (ticketCount < 1 || ticketCount > 25) {
+  if (ticketCount < constants.MIN_NUMBER_TICKETS || ticketCount > constants.MAX_NUMBER_TICKETS) {
     throw new InvalidPurchaseException("Must have at least one ticket or maximum of 25 tickets")
   }
 }
