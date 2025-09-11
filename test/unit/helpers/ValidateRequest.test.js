@@ -1,4 +1,4 @@
-import { describe, test, vi, expect } from "vitest";
+import { describe, test, expect } from "vitest";
 
 import * as helper from "../../../src/helpers/ValidateRequest.js";
 import TicketTypeRequest from "../../../src/pairtest/lib/TicketTypeRequest";
@@ -95,6 +95,105 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest("ADULT", 2),
         new TicketTypeRequest("CHILD", 2),
         new TicketTypeRequest("INFANT", 1),
+      ])).not.toThrow();
+    });
+  });
+
+  describe("Validate ticket rules", () => {
+    test("should be defined", () => {
+      expect(helper.validatePurchaseTypeRules).toBeDefined();
+    });
+
+    test("should throw an error when no Adult ticket is requested", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("CHILD", 2)
+      ])).toThrow();
+    });
+
+    test("should throw an error when no Adult ticket is requested", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("CHILD", 2),
+        new TicketTypeRequest("INFANT", 2)        
+      ])).toThrow();
+    });
+
+    test("should not throw an error when a single Adult ticket is requested", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 1)
+      ])).not.toThrow();
+    }); 
+
+     test("should not throw an error when an adult and child ticket is requested", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 1),
+        new TicketTypeRequest("CHILD", 1)        
+      ])).not.toThrow();
+    }); 
+
+    test("should not throw an error when an adult and infant ticket is requested", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 1),
+        new TicketTypeRequest("INFANT", 1)        
+      ])).not.toThrow();
+    }); 
+
+    test("should throw an error when number of infants is greater than number of adults", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 1),
+        new TicketTypeRequest("INFANT", 2)        
+      ])).toThrow();
+    });     
+   
+    test("should not throw an error when number of infants is less than number of adults", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 1),
+        new TicketTypeRequest("INFANT", 1)        
+      ])).not.toThrow();
+    });
+
+    test("should not throw an error when number of infants is less than number of adults", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("INFANT", 1)        
+      ])).not.toThrow();
+    });  
+
+    test("should not throw an error when number of infants is equal to number of adults", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest("INFANT", 2)        
+      ])).not.toThrow();
+    });
+
+    test("should throw an error when total number of tickets is zero", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 0),
+        new TicketTypeRequest("INFANT", 0), 
+        new TicketTypeRequest("CHILD", 0),               
+      ])).toThrow();
+    });      
+
+    test("should throw an error when total number of tickets is greater than 25", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 25),
+        new TicketTypeRequest("INFANT", 3), 
+        new TicketTypeRequest("CHILD", 4),               
+      ])).toThrow();
+    });
+
+    test("should throw an error when total number of tickets is greater than 25", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 25),
+        new TicketTypeRequest("INFANT", 3), 
+        new TicketTypeRequest("CHILD", 4),               
+      ])).toThrow();
+    });
+
+    test("should not throw an error when total number of tickets is 25", () => {
+      expect(() => helper.validatePurchaseTypeRules([
+        new TicketTypeRequest("ADULT", 23),
+        new TicketTypeRequest("INFANT", 1), 
+        new TicketTypeRequest("CHILD", 1),               
       ])).not.toThrow();
     });
   });
