@@ -1,5 +1,5 @@
 import logger from '../utils/logger.js';
-import { validateAccountID, validateTicketRequest, validatePurchaseTypeRules } from '../helpers/ValidateRequest.js';
+import { validateRequest } from '../helpers/ValidateRequest.js';
 import { calculateNumSeats, calculateTotalCost } from '../helpers/CalculationHelper.js';
 import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
 import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
@@ -12,9 +12,7 @@ export default class TicketService {
     logger.debug({ message: "In purchaseTickets()" });
 
     try {
-      validateAccountID(accountId);
-      validateTicketRequest(accountId);
-      validatePurchaseTypeRules(accountId);
+      validateRequest(accountId);
 
       const totalPrice = calculateTotalCost(ticketTypeRequests);
       const numSeats = calculateNumSeats(ticketTypeRequests);
