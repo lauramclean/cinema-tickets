@@ -2,6 +2,7 @@ import * as _ from "es-toolkit/compat";
 import logger from "../utils/logger.js";
 import InvalidPurchaseException from "../pairtest/lib/InvalidPurchaseException.js";
 import * as constants from "../utils/constants.js";
+import TicketTypeRequest from "../pairtest/lib/TicketTypeRequest.js";
 
 /**
  * 
@@ -49,22 +50,21 @@ export const validateTicketRequest = (ticketTypeRequests) => {
     throw new TypeError("Invalid request type - requires at least 1 ticket request to be present");
   }
 
-  if (ticketTypeRequests.length > constants.TICKET_TYPE_MAP.length) {
-    throw new TypeError("Number of ticket types exceeds maximum supported types");
-  }
-
-  if (hasDuplicates(ticketTypeRequests)) {
-    throw new TypeError("Must only have one instance of each ticket type");
-  }
-    
   ticketTypeRequests.forEach(ticket => {
+    if (!(ticket instanceof TicketTypeRequest)) {
+      throw new TypeError("Should be of TicketTypeRequest type");       
+    }
     if (!isValidType(ticket.getTicketType())) {
       throw new TypeError("Invalid ticket type");
     }
     if (ticket.getNoOfTickets() <= 0) {
       throw new TypeError("Expected at least one ticket");
     }
-  });
+  });  
+
+  if (hasDuplicates(ticketTypeRequests)) {
+    throw new TypeError("Must only have one instance of each ticket type");
+  }
 }
 
 /**

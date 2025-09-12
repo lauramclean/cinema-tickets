@@ -24,8 +24,7 @@ Javascript service which allows cinema tickets to be purchased. The main logic i
 - Minimum number of tickets to be purchased is 1 and maximum number is 25.
 - There must be one Adult type present in the ticket purchase request.
 - The number of infants cannot be greater than the number of adults.
-- Only one of each ticket type in the request - no duplicates.
-- Maximum number of TicketTypeRequests is 3 to cover Adult, Infant and Child.
+- Only one of each ticket type in the request - no duplicates. Implies 3 TicketTypeRequests (Adult, Infant and Child).
 - Payment service will be called prior to the seat reservation service. 
 - Purchaser will always have enough funds - how the payment happens is outside of scope.
 - Seats will always be reserved - how the seats are reserved is outside of scope.
