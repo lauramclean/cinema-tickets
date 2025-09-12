@@ -2,6 +2,7 @@ import * as _ from "es-toolkit/compat";
 import logger from "../utils/logger.js";
 import InvalidPurchaseException from "../pairtest/lib/InvalidPurchaseException.js";
 import * as constants from "../utils/constants.js";
+import * as errors from "../utils/errors.js";
 import TicketTypeRequest from "../pairtest/lib/TicketTypeRequest.js";
 
 /**
@@ -28,7 +29,7 @@ export const validateAccountID = (accountId) => {
   logger.debug({ message: "In validateAccountID()" });
 
   if (!Number.isInteger(accountId) || accountId <= constants.MIN_ACCOUNT_ID_VALUE) {
-    throw new TypeError("Invalid account ID - must be greater than 0");
+    throw new TypeError(errors.ACCOUNT_ID_ERROR);
   }
 }
 
@@ -61,23 +62,23 @@ export const validateTicketRequest = (ticketTypeRequests) => {
   logger.debug({ message: "In validateTicketTypes()" });
 
   if (!Array.isArray(ticketTypeRequests) || !ticketTypeRequests?.length) {
-    throw new TypeError("Invalid request type - requires at least 1 ticket request to be present");
+    throw new TypeError(errors.TICKET_REQUEST_ARRAY_ERROR);
   }
 
   ticketTypeRequests.forEach(ticket => {
     if (!(ticket instanceof TicketTypeRequest)) {
-      throw new TypeError("Should be of TicketTypeRequest type");       
+      throw new TypeError(errors.INVALID_TYPE_REQUEST_ERROR);       
     }
     if (!isValidType(ticket.getTicketType())) {
-      throw new TypeError("Invalid ticket type");
+      throw new TypeError(errors.INVALID_TICKET_TYPE_ERROR);
     }
-    if (ticket.getNoOfTickets() <= 0) {
-      throw new TypeError("Expected at least one ticket");
+    if (ticket.getNoOfTickets() < constants.MIN_NUMBER_TICKETS) {
+      throw new TypeError(errors.MIN_TICKET_COUNT_ERROR);
     }
   });  
 
   if (hasDuplicates(ticketTypeRequests)) {
-    throw new TypeError("Must only have one instance of each ticket type");
+    throw new TypeError(errors.DUPLICATE_TICKET_ERROR);
   }
 }
 
@@ -96,16 +97,16 @@ export const validatePurchaseTypeRules = (ticketTypeRequests) => {
   //requirement that an infant will be sat on an adults lap.
   const adult = _.find(ticketTypeRequests, (type) => type.getTicketType() === constants.TICKET_TYPE_ADULT);
   if (!adult) {
-    throw new InvalidPurchaseException("Requires at least 1 adult to be present");
+    throw new InvalidPurchaseException(errors.REQUIRES_ADULT_ERROR);
   }
 
   const infant = _.find(ticketTypeRequests, (type) => type.getTicketType() === constants.TICKET_TYPE_INFANT)
   if (infant?.getNoOfTickets() > adult.getNoOfTickets()) {
-    throw new InvalidPurchaseException("Requires at least 1 adult per infant to be present");
+    throw new InvalidPurchaseException(errors.INFANT_RULE_ERROR);
   }
 
   const ticketCount = _.sum(_.map(ticketTypeRequests, (item) => item.getNoOfTickets()));
   if (ticketCount < constants.MIN_NUMBER_TICKETS || ticketCount > constants.MAX_NUMBER_TICKETS) {
-    throw new InvalidPurchaseException("Must have at least one ticket or maximum of 25 tickets")
+    throw new InvalidPurchaseException(errors.TICKET_COUNT_RANGE_ERROR);
   }
 }

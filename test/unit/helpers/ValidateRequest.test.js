@@ -1,6 +1,7 @@
 import { describe, test, vi, beforeEach, afterEach, expect } from "vitest";
 
-import { TICKET_TYPE_ADULT, TICKET_TYPE_CHILD, TICKET_TYPE_INFANT } from "../../../src/utils/constants.js"
+import { TICKET_TYPE_ADULT, TICKET_TYPE_CHILD, TICKET_TYPE_INFANT } from "../../../src/utils/constants.js";
+import * as errors from "../../../src/utils/errors.js";
 import logger from "../../../src/utils/logger.js";
 import * as helper from "../../../src/helpers/ValidateRequest.js";
 import TicketTypeRequest from "../../../src/pairtest/lib/TicketTypeRequest";
@@ -25,27 +26,27 @@ describe("ValidateRequest helper functions", () => {
     });
 
     test("should throw an error when passing an accountID of null", () => {
-      expect(() => helper.validateAccountID(null)).toThrowError("Invalid account ID - must be greater than 0");
+      expect(() => helper.validateAccountID(null)).toThrowError(errors.ACCOUNT_ID_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
     test("should throw an error when passing an accountID of undefined", () => {
-      expect(() => helper.validateAccountID(undefined)).toThrowError("Invalid account ID - must be greater than 0");
+      expect(() => helper.validateAccountID(undefined)).toThrowError(errors.ACCOUNT_ID_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
     test("should throw an error when passing accountID of string type", () => {
-      expect(() => helper.validateAccountID("1234")).toThrowError("Invalid account ID - must be greater than 0");
+      expect(() => helper.validateAccountID("1234")).toThrowError(errors.ACCOUNT_ID_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
     test("should throw an error when passing accountID of decimal type", () => {
-      expect(() => helper.validateAccountID(12.3)).toThrowError("Invalid account ID - must be greater than 0");
+      expect(() => helper.validateAccountID(12.3)).toThrowError(errors.ACCOUNT_ID_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
     test("should throw an error when passing an accountID with a negative value", () => {
-      expect(() => helper.validateAccountID(-1)).toThrowError("Invalid account ID - must be greater than 0");
+      expect(() => helper.validateAccountID(-1)).toThrowError(errors.ACCOUNT_ID_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
@@ -55,7 +56,7 @@ describe("ValidateRequest helper functions", () => {
     });
 
     test("should throw an error when passing accountID where value is zero", () => {
-      expect(() => helper.validateAccountID(0)).toThrowError('Invalid account ID - must be greater than 0');
+      expect(() => helper.validateAccountID(0)).toThrowError(errors.ACCOUNT_ID_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });    
   });
@@ -67,13 +68,13 @@ describe("ValidateRequest helper functions", () => {
 
     test("should throw an error when the TicketTypeRequest is not an array", () => {
       expect(() => helper.validateTicketRequest(null))
-        .toThrowError("Invalid request type - requires at least 1 ticket request to be present");
+        .toThrowError(errors.REQUEST_ARRAY_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);        
     });
 
     test("should throw an error when the TicketTypeRequest is empty", () => {
       expect(() => helper.validateTicketRequest([]))
-        .toThrowError("Invalid request type - requires at least 1 ticket request to be present");
+        .toThrowError(errors.REQUEST_ARRAY_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);         
     });
 
@@ -82,7 +83,7 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
         new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
         new TicketTypeRequest(TICKET_TYPE_INFANT, 2),
-      ])).toThrowError("Must only have one instance of each ticket type");
+      ])).toThrowError(errors.DUPLICATE_TICKET_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);       
     });
 
@@ -96,7 +97,7 @@ describe("ValidateRequest helper functions", () => {
     test("should throw an error when the request array does not contain a TicketRequestType", () => {
       expect(() => helper.validateTicketRequest([
         TICKET_TYPE_ADULT
-      ])).toThrowError("Should be of TicketTypeRequest type");
+      ])).toThrowError(errors.INVALID_TYPE_REQUEST_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });  
 
@@ -105,7 +106,7 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
         new TicketTypeRequest(TICKET_TYPE_CHILD, 0),
         new TicketTypeRequest(TICKET_TYPE_INFANT, 0),
-      ])).toThrowError("Expected at least one ticket");
+      ])).toThrowError(errors.MIN_TICKET_COUNT_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
@@ -124,18 +125,18 @@ describe("ValidateRequest helper functions", () => {
       expect(helper.validatePurchaseTypeRules).toBeDefined();
     });
 
-    test("should throw an error when no Adult ticket is requested", () => {
+    test("should throw an error when a single child ticket is requested without an adult", () => {
       expect(() => helper.validatePurchaseTypeRules([
         new TicketTypeRequest(TICKET_TYPE_CHILD, 2)
-      ])).toThrowError('Requires at least 1 adult to be present');
+      ])).toThrowError(errors.REQUIRES_ADULT_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);       
     });
 
-    test("should throw an error when no Adult ticket is requested", () => {
+    test("should throw an error when a child plus infant tickets are requested without an adult", () => {
       expect(() => helper.validatePurchaseTypeRules([
         new TicketTypeRequest(TICKET_TYPE_CHILD, 2),
         new TicketTypeRequest(TICKET_TYPE_INFANT, 2)        
-      ])).toThrowError('Requires at least 1 adult to be present');
+      ])).toThrowError(errors.REQUIRES_ADULT_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
@@ -166,7 +167,7 @@ describe("ValidateRequest helper functions", () => {
       expect(() => helper.validatePurchaseTypeRules([
         new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
         new TicketTypeRequest(TICKET_TYPE_INFANT, 2)        
-      ])).toThrowError('Requires at least 1 adult per infant to be present');
+      ])).toThrowError(errors.INFANT_RULE_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });     
    
@@ -199,7 +200,7 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest(TICKET_TYPE_ADULT, 0),
         new TicketTypeRequest(TICKET_TYPE_INFANT, 0), 
         new TicketTypeRequest(TICKET_TYPE_CHILD, 0),               
-      ])).toThrowError('Must have at least one ticket or maximum of 25 tickets');
+      ])).toThrowError(errors.TICKET_COUNT_RANGE_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });      
 
@@ -208,7 +209,7 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest(TICKET_TYPE_ADULT, 25),
         new TicketTypeRequest(TICKET_TYPE_INFANT, 3), 
         new TicketTypeRequest(TICKET_TYPE_CHILD, 4),               
-      ])).toThrowError('Must have at least one ticket or maximum of 25 tickets');
+      ])).toThrowError(errors.TICKET_COUNT_RANGE_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
@@ -217,7 +218,7 @@ describe("ValidateRequest helper functions", () => {
         new TicketTypeRequest(TICKET_TYPE_ADULT, -1),
         new TicketTypeRequest(TICKET_TYPE_INFANT, -1), 
         new TicketTypeRequest(TICKET_TYPE_CHILD, -1),               
-      ])).toThrowError("Must have at least one ticket or maximum of 25 tickets");
+      ])).toThrowError(errors.TICKET_COUNT_RANGE_ERROR);
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
@@ -244,7 +245,7 @@ describe("ValidateRequest helper functions", () => {
       try {
         helper.validateRequest(0, [new TicketTypeRequest(TICKET_TYPE_ADULT, 2)]);
       } catch (error) {
-        expect(error.message).toEqual("Invalid account ID - must be greater than 0");
+        expect(error.message).toEqual(errors.ACCOUNT_ID_ERROR);
       }
 
       expect(logger.debug).toHaveBeenCalledTimes(2);
@@ -255,7 +256,7 @@ describe("ValidateRequest helper functions", () => {
       try {
         helper.validateRequest(1, []);
       } catch (error) {
-        expect(error.message).toEqual("Invalid request type - requires at least 1 ticket request to be present");
+        expect(error.message).toEqual(errors.TICKET_REQUEST_ARRAY_ERROR);
       }
 
       expect(logger.debug).toHaveBeenCalledTimes(3);
@@ -266,7 +267,7 @@ describe("ValidateRequest helper functions", () => {
       try {
         helper.validateRequest(1, [new TicketTypeRequest(TICKET_TYPE_INFANT, 1)]);
       } catch (error) {
-        expect(error.message).toEqual("Requires at least 1 adult to be present");
+        expect(error.message).toEqual(errors.REQUIRES_ADULT_ERROR);
       }
 
       expect(logger.debug).toHaveBeenCalledTimes(4);
