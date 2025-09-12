@@ -1,14 +1,18 @@
-import { describe, test, vi, beforeEach, afterAll, expect } from "vitest";
-
+import { describe, test, vi, beforeEach, expect, afterEach } from "vitest";
+import * as validationHelper from "../../../src/helpers/ValidateRequest.js";
+import * as calculationHelper from "../../../src/helpers/CalculationHelper.js";
 import logger from "../../../src/utils/logger.js";
 import TicketService from "../../../src/pairtest/TicketService.js";
 import TicketTypeRequest from "../../../src/pairtest/lib/TicketTypeRequest";
+import TicketPaymentService from "../../../src/thirdparty/paymentgateway/TicketPaymentService.js";
+import SeatReservationService from "../../../src/thirdparty/seatbooking/SeatReservationService.js";
+import InvalidPurchaseException from "../../../src/pairtest/lib/InvalidPurchaseException.js";
 
 vi.mock("../../../src/helpers/ValidateRequest.js");
 vi.mock("../../../src/helpers/CalculationHelper.js");
-vi.mock("../../../src/thirdparty/paymentgateway/TicketPaymentService.js");
-vi.mock("../../../src/thirdparty/seatbooking/SeatBookingService.js");
-
+vi.mock("../../../src/thirdparty/paymentgateway/TicketPaymentService.js", { spy: true });
+vi.mock("../../../src/thirdparty/seatbooking/SeatBookingService.js", { spy: true });
+    
 describe("TicketService tests", () => {
  
   const ticketService = new TicketService();
@@ -18,13 +22,14 @@ describe("TicketService tests", () => {
     new TicketTypeRequest("CHILD", 2),
     new TicketTypeRequest("INFANT", 1)
   ];
-
+  
   beforeEach(() => {
     vi.spyOn(logger, "debug");
-    vi.spyOn(logger, "error")
+    vi.spyOn(logger, "info");
+    vi.spyOn(logger, "error");
   });
 
-  afterAll(() => {
+  afterEach(() => {
     vi.clearAllMocks();
   });
 
@@ -34,10 +39,30 @@ describe("TicketService tests", () => {
 
   test("should throw an error when validation of the request fails", () => {
 
-    //mock the validation helper and force an error
-    //spy on calculation helper, ticket payment + booking service and they should not be called
-    //expect purchaseTickets to throw the error
-    expect(() => { ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrow() });
+    vi.mocked(validationHelper.validateAccountID).mockImplementation(() => { throw new TypeError("invalid account id")});
+    vi.mocked(validationHelper.validateTicketRequest).mockImplementation(() => { throw new TypeError("invalid account id")});
+    vi.mocked(validationHelper.validatePurchaseTypeRules).mockImplementation(() => { throw new TypeError("invalid account id")});
+    vi.spyOn(calculationHelper, 'calculateTotalCost').mockImplementation(() => { return 20 });
+    vi.spyOn(calculationHelper, 'calculateNumSeats').mockImplementation(() => { return 2 });
+
+    TicketPaymentService.prototype.makePayment = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("something failed"); });
+    SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("something failed"); });
+
+    try {
+     ticketService.purchaseTickets(accountId, ticketTypeRequests);
+    } catch (error) {
+      expect(error.message).toEqual("invalid account id");
+    }
+
+    //expect(() => ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrowError("invalid account id"));
+
+    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
+    expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: invalid account id`}));
+    expect(validationHelper.validateTicketRequest).not.toHaveBeenCalled();
+    expect(calculationHelper.calculateTotalCost).not.toHaveBeenCalled();
+    expect(calculationHelper.calculateNumSeats).not.toHaveBeenCalled();
+    expect(TicketPaymentService.prototype.makePayment).not.toHaveBeenCalled();
+    expect(SeatReservationService.prototype.reserveSeat).not.toHaveBeenCalled();
   });
 
   test("should throw an error vhen the payment service returns an error", () => {
@@ -69,5 +94,5 @@ describe("TicketService tests", () => {
     //expect purchaseTickets to return with the cost and seats allocated
     const purchase = ticketService.purchaseTickets(accountId, ticketTypeRequests);
     expect(purchase).toBeDefined();
-  });  
+  });
 });

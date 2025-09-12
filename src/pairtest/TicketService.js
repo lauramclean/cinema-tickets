@@ -1,12 +1,42 @@
-import TicketTypeRequest from './lib/TicketTypeRequest.js';
-import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
-
+import logger from '../utils/logger.js';
+import { validateAccountID, validateTicketRequest, validatePurchaseTypeRules } from '../helpers/ValidateRequest.js';
+import { calculateNumSeats, calculateTotalCost } from '../helpers/CalculationHelper.js';
+import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
+import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
 export default class TicketService {
   /**
    * Should only have private methods other than the one below.
    */
 
   purchaseTickets(accountId, ...ticketTypeRequests) {
-    // throws InvalidPurchaseException
+    logger.debug({ message: "In purchaseTickets()" });
+
+    try {
+      validateAccountID(accountId);
+      validateTicketRequest(accountId);
+      validatePurchaseTypeRules(accountId);
+
+      const totalPrice = calculateTotalCost(ticketTypeRequests);
+      const numSeats = calculateNumSeats(ticketTypeRequests);
+
+      this.#makePayment(accountId, totalPrice);
+      this.#reserveSeats(accountId, numSeats);
+
+      logger.info({ message: `Booking successful. Total cost £${totalPrice} and ${numSeats} seats booked` });
+      return { price: totalPrice, seatsReserved: numSeats }
+
+    } catch (error) {
+      logger.error({ message: `Purchase request unsuccessful: ${error?.message}`});
+      //Pass the error to the calling code to handle the error
+      throw error;
+    }
+  }
+
+  #makePayment(accountId, totalPrice) {
+    new TicketPaymentService().makePayment(accountId, totalPrice);
+  }
+
+  #reserveSeats(accountId, numSeatsRequired) {
+    new SeatReservationService().reserveSeat(accountId, numSeatsRequired);
   }
 }
