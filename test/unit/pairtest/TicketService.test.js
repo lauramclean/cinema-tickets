@@ -49,13 +49,7 @@ describe("TicketService tests", () => {
     SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => {});
 
     // Test the service
-    try {
-      ticketService.purchaseTickets(accountId, ticketTypeRequests);
-    } catch (error) {
-      expect(error.message).toEqual("invalid account id");
-    }
-
-    //expect(() => ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrowError("invalid account id"));
+    expect(() => ticketService.purchaseTickets(accountId, ticketTypeRequests)).toThrowError("Purchase failed: invalid account id");
 
     expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
     expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: invalid account id`}));
@@ -77,12 +71,7 @@ describe("TicketService tests", () => {
     SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => {});
 
     // Test the service
-    try {
-      ticketService.purchaseTickets(accountId, ticketTypeRequests);
-    } catch (error) {
-      expect(error.message).toEqual("payment failed");
-    }
-   // expect(() => { ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrow() });
+    expect(() => ticketService.purchaseTickets(accountId, ticketTypeRequests)).toThrowError("Purchase failed: payment failed");
 
     expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
     expect(logger.info).not.toHaveBeenCalled();
@@ -104,12 +93,7 @@ describe("TicketService tests", () => {
     SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("seat reservations failed"); });
 
     // Test the service
-    try {
-      ticketService.purchaseTickets(accountId, ticketTypeRequests);
-    } catch (error) {
-      expect(error.message).toEqual("seat reservations failed");
-    }
-   // expect(() => { ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrow() });
+    expect(() => ticketService.purchaseTickets(accountId, ticketTypeRequests)).toThrowError("Purchase failed: seat reservations failed");
 
     expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
     expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: seat reservations failed`}));

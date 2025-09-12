@@ -3,6 +3,7 @@ import { validateRequest } from '../helpers/ValidateRequest.js';
 import { calculateNumSeats, calculateTotalCost } from '../helpers/CalculationHelper.js';
 import TicketPaymentService from '../thirdparty/paymentgateway/TicketPaymentService.js';
 import SeatReservationService from '../thirdparty/seatbooking/SeatReservationService.js';
+import InvalidPurchaseException from './lib/InvalidPurchaseException.js';
 export default class TicketService {
   /**
    * Should only have private methods other than the one below.
@@ -25,8 +26,7 @@ export default class TicketService {
 
     } catch (error) {
       logger.error({ message: `Purchase request unsuccessful: ${error?.message}`});
-      //Pass the error to the calling code to handle the error
-      throw error;
+      throw new InvalidPurchaseException(`Purchase failed: ${error?.message}`);
     }
   }
 
