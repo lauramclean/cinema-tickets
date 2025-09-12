@@ -86,7 +86,7 @@ describe("TicketService tests", () => {
     expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
     expect(logger.info).not.toHaveBeenCalled();
     expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: payment failed`}));
-    //expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId);//expect.anything()
+    expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId, expect.any(Array));
     expect(calculationHelper.calculateTotalCost).toHaveBeenCalled();
     expect(calculationHelper.calculateNumSeats).toHaveBeenCalled();
     expect(TicketPaymentService.prototype.makePayment).toHaveBeenCalledWith(accountId, totalCost);
@@ -113,7 +113,7 @@ describe("TicketService tests", () => {
     expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
     expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: seat reservations failed`}));
     expect(logger.info).not.toHaveBeenCalled();
-    //expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId);//expect.anything()
+    expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId, expect.any(Array));
     expect(calculationHelper.calculateTotalCost).toHaveBeenCalled();
     expect(calculationHelper.calculateNumSeats).toHaveBeenCalled();
     expect(TicketPaymentService.prototype.makePayment).toHaveBeenCalledWith(accountId, totalCost);
@@ -138,7 +138,7 @@ describe("TicketService tests", () => {
     expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
     expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({ message: `Booking successful. Total cost £${totalCost} and ${seatNumbers} seats booked`}));
     expect(logger.error).not.toHaveBeenCalled();
-    //expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId);//expect.anything()
+    expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId, expect.any(Array));
     expect(calculationHelper.calculateTotalCost).toHaveBeenCalled();
     expect(calculationHelper.calculateNumSeats).toHaveBeenCalled();
     expect(TicketPaymentService.prototype.makePayment).toHaveBeenCalledWith(accountId, totalCost);

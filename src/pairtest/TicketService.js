@@ -12,7 +12,7 @@ export default class TicketService {
     logger.debug({ message: "In purchaseTickets()" });
 
     try {
-      validateRequest(accountId);
+      validateRequest(accountId, ticketTypeRequests);
 
       const totalPrice = calculateTotalCost(ticketTypeRequests);
       const numSeats = calculateNumSeats(ticketTypeRequests);
