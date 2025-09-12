@@ -6,7 +6,9 @@
     "node": ">=20.9.0"
   },
   "type": "module",
+  "main": "app.js",
   "scripts": {
+    "start": "LOG_LEVEL=debug node app.js",    
     "test": "vitest run ./test/unit/",
     "test:coverage": "vitest run --coverage ./test/unit",
     "lint": "eslint .",
