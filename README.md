@@ -29,7 +29,7 @@ Javascript service which allows cinema tickets to be purchased. The main logic i
 - Purchaser will always have enough funds - how the payment happens is outside of scope.
 - Seats will always be reserved - how the seats are reserved is outside of scope.
 
-## Futher clarity
+## Further clarity
 
 The following would require clarifying with a Business Analyst in terms of behaviour
 - The ratio of infants to adults does not explicitly state 1 infant per adult.
@@ -78,9 +78,40 @@ The following will run linting rules against the code:
 npm run lint
 ```
 
-
-
-
 ## Usage
-## Configuration -- log level
+
+The entry point to the service is `app.js` where an example purchase will be ran:
+
+```bash
+npm start
+```
+The output in the terminal should show
+
+```bash
+INFO: In cinema-ticket purchase service
+...
+INFO: TicketService returned with {"price":95,"seatsReserved":5}
+```
+
+## Configuration
+
+The log level is controlled by an environment variable `LOG_LEVEL`. The default level is debug.
+When running the app.js script, the log level is set to debug. 
+
+The config object is stored in ./config.js which can be extended in future to hold other variables.
+
+```bash
+"start": "LOG_LEVEL=debug node app.js",  
+```
+
 ## Future improvements
+
+- Expand range of ticket types to cover students, concessions etc 
+- Build out as a microservice, expose a RESTful API with swagger contract, allowing a consumer to call the service
+    - Expose version and healthcheck API endpoints for readiness and liveness checks
+    - Add prometheus client to gather metrics e.g. number of each types of tickets purchased, error counts which can be exposed on a /metrics endpoint and the data can be fed into a dashboard for observability
+    - Move the third party ticket payment and booking services out to seperate microservices and call them via an API and make the calls asynchronous
+- Create a dockerfile to containerise the service
+- Create environment configuration for non-production and production environments
+- Migrate the service to Typescript for stronger typing
+
