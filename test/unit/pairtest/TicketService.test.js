@@ -39,11 +39,9 @@ describe("TicketService tests", () => {
 
   test("should throw an error when validation of the request fails", () => {
 
-    vi.mocked(validationHelper.validateAccountID).mockImplementation(() => { throw new TypeError("invalid account id")});
-    vi.mocked(validationHelper.validateTicketRequest).mockImplementation(() => { throw new TypeError("invalid account id")});
-    vi.mocked(validationHelper.validatePurchaseTypeRules).mockImplementation(() => { throw new TypeError("invalid account id")});
-    vi.spyOn(calculationHelper, 'calculateTotalCost').mockImplementation(() => { return 20 });
-    vi.spyOn(calculationHelper, 'calculateNumSeats').mockImplementation(() => { return 2 });
+    vi.mocked(validationHelper.validateRequest).mockImplementation(() => { throw new TypeError("invalid account id")});
+    vi.mocked(calculationHelper.calculateTotalCost).mockImplementation(() => { return 20 });
+    vi.mocked(calculationHelper.calculateNumSeats).mockImplementation(() => { return 2 });
 
     TicketPaymentService.prototype.makePayment = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("something failed"); });
     SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("something failed"); });

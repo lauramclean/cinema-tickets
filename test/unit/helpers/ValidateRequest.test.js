@@ -229,4 +229,46 @@ describe("ValidateRequest helper functions", () => {
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
   });
+
+  describe("ValidateRequest tests", () => {
+    test("should pass validation", () => {
+      expect(() => helper.validateRequest(123, [
+        new TicketTypeRequest("ADULT", 2)
+      ])).not.toThrow()
+      expect(logger.debug).toHaveBeenCalledTimes(4);
+    });
+
+    test("should fail account id validation", () => {
+
+      try {
+        helper.validateRequest(0, [new TicketTypeRequest("ADULT", 2)]);
+      } catch (error) {
+        expect(error.message).toEqual("Invalid account ID - must be greater than 0");
+      }
+
+      expect(logger.debug).toHaveBeenCalledTimes(2);
+    });
+
+    test("should fail ticket type validation", () => {
+
+      try {
+        helper.validateRequest(0, []);
+      } catch (error) {
+        expect(error.message).toEqual("Invalid request type - requires at least 1 ticket request to be present");
+      }
+
+      expect(logger.debug).toHaveBeenCalledTimes(3);
+    });
+
+    test("should fail ticket rules validation", () => {
+
+      try {
+        helper.validateRequest(0, [new TicketTypeRequest("INFANT", 1)]);
+      } catch (error) {
+        expect(error.message).toEqual("Requires at least 1 adult to be present");
+      }
+
+      expect(logger.debug).toHaveBeenCalledTimes(4);
+    });      
+  });
 });

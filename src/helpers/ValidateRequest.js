@@ -6,6 +6,20 @@ import TicketTypeRequest from "../pairtest/lib/TicketTypeRequest.js";
 
 /**
  * 
+ * @param {number} accountId 
+ * @param {Array} ticketTypeRequests
+ * @description wrapper function to run the validation checks. Any failures will result in an error being thrown
+ */
+export const validateRequest = (accountID, ticketTypeRequests) => {
+  logger.debug({ message: "In validateRequest()" });
+  
+  validateAccountID(accountID);
+  validateTicketRequest(ticketTypeRequests);
+  validatePurchaseTypeRules(ticketTypeRequests);
+};
+
+/**
+ * 
  * @param {Number} accountId 
  * @description validates the account is numeric. Throws error when invalid
  */
