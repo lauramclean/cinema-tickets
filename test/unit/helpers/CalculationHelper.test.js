@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeEach, afterAll } from "vitest";
 
+import { TICKET_TYPE_ADULT, TICKET_TYPE_CHILD, TICKET_TYPE_INFANT } from "../../../src/utils/constants.js";
 import logger from "../../../src/utils/logger.js";
 import * as helper from "../../../src/helpers/CalculationHelper.js"
 import TicketTypeRequest from "../../../src/pairtest/lib/TicketTypeRequest.js";
@@ -31,7 +32,7 @@ describe("Calculation helper functions", () => {
 
     test("should return 25 when a single adult tickets are requested", () => {
       expect(helper.calculateTotalCost([
-        new TicketTypeRequest("ADULT", 1)
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1)
       ])).toBe(25);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateTotalCost()`}));
@@ -40,7 +41,7 @@ describe("Calculation helper functions", () => {
 
     test("should return 50 when two adult tickets are requested", () => {
       expect(helper.calculateTotalCost([
-        new TicketTypeRequest("ADULT", 2)
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2)
       ])).toBe(50);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateTotalCost()`}));
@@ -49,8 +50,8 @@ describe("Calculation helper functions", () => {
 
     test("should return 40 when one adult ticket plus one child tickets are requested", () => {
       expect(helper.calculateTotalCost([
-        new TicketTypeRequest("ADULT", 1),
-        new TicketTypeRequest("CHILD", 1)        
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 1)        
       ])).toBe(40);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateTotalCost()`}));
@@ -59,9 +60,9 @@ describe("Calculation helper functions", () => {
 
     test("should return 40 when one adult, child and infant tickets are requested", () => {
       expect(helper.calculateTotalCost([
-        new TicketTypeRequest("ADULT", 1),
-        new TicketTypeRequest("CHILD", 1),
-        new TicketTypeRequest("INFANT", 1),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 1),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1),
       ])).toBe(40);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateTotalCost()`}));
@@ -70,9 +71,9 @@ describe("Calculation helper functions", () => {
 
     test("should return 95 when two adults, three child and 2 infant tickets are requested", () => {
       expect(helper.calculateTotalCost([
-        new TicketTypeRequest("ADULT", 2),
-        new TicketTypeRequest("CHILD", 3),
-        new TicketTypeRequest("INFANT", 2),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 3),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 2),
       ])).toBe(95);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateTotalCost()`}));
@@ -81,7 +82,7 @@ describe("Calculation helper functions", () => {
 
    test("should return 0 when a single infant is requested", () => {
       expect(helper.calculateTotalCost([
-        new TicketTypeRequest("INFANT", 1),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1),
       ])).toBe(0);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateTotalCost()`}));
@@ -90,9 +91,9 @@ describe("Calculation helper functions", () => {
 
    test("should return 0 when the ticket count per type is zero", () => {
       expect(helper.calculateTotalCost([
-        new TicketTypeRequest("ADULT", 0),
-        new TicketTypeRequest("CHILD", 0),
-        new TicketTypeRequest("INFANT", 0),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 0),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 0),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 0),
       ])).toBe(0);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateTotalCost()`}));
@@ -115,7 +116,7 @@ describe("Calculation helper functions", () => {
 
     test("should return 1 when a single adult tickets are requested", () => {
       expect(helper.calculateNumSeats([
-        new TicketTypeRequest("ADULT", 1)
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1)
       ])).toBe(1);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateNumSeats()`}));
@@ -124,7 +125,7 @@ describe("Calculation helper functions", () => {
 
     test("should return 2 when two adult tickets are requested", () => {
       expect(helper.calculateNumSeats([
-        new TicketTypeRequest("ADULT", 2)
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2)
       ])).toBe(2);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateNumSeats()`}));
@@ -133,8 +134,8 @@ describe("Calculation helper functions", () => {
 
     test("should return 2 when one adult ticket plus one child tickets are requested", () => {
       expect(helper.calculateNumSeats([
-        new TicketTypeRequest("ADULT", 1),
-        new TicketTypeRequest("CHILD", 1)        
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 1)        
       ])).toBe(2);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateNumSeats()`}));
@@ -143,9 +144,9 @@ describe("Calculation helper functions", () => {
 
     test("should return 2 when one adult, child and infant tickets are requested", () => {
       expect(helper.calculateNumSeats([
-        new TicketTypeRequest("ADULT", 1),
-        new TicketTypeRequest("CHILD", 1),
-        new TicketTypeRequest("INFANT", 1),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 1),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1),
       ])).toBe(2);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateNumSeats()`}));
@@ -154,9 +155,9 @@ describe("Calculation helper functions", () => {
 
     test("should return 5 when two adults, three child and 2 infant tickets are requested", () => {
       expect(helper.calculateNumSeats([
-        new TicketTypeRequest("ADULT", 2),
-        new TicketTypeRequest("CHILD", 3),
-        new TicketTypeRequest("INFANT", 2),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 3),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 2),
       ])).toBe(5);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateNumSeats()`}));
@@ -165,7 +166,7 @@ describe("Calculation helper functions", () => {
 
    test("should return 0 when a single infant is requested", () => {
       expect(helper.calculateNumSeats([
-        new TicketTypeRequest("INFANT", 1),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1),
       ])).toBe(0);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateNumSeats()`}));
@@ -174,9 +175,9 @@ describe("Calculation helper functions", () => {
 
    test("should return 0 when the ticket count per type is zero", () => {
       expect(helper.calculateNumSeats([
-        new TicketTypeRequest("ADULT", 0),
-        new TicketTypeRequest("CHILD", 0),
-        new TicketTypeRequest("INFANT", 0),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 0),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 0),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 0),
       ])).toBe(0);
       expect(logger.debug).toHaveBeenCalledTimes(2);
       expect(logger.debug).toHaveBeenNthCalledWith(1, expect.objectContaining({message: `In calculateNumSeats()`}));

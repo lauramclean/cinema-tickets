@@ -1,5 +1,6 @@
 import { describe, test, vi, beforeEach, afterEach, expect } from "vitest";
 
+import { TICKET_TYPE_ADULT, TICKET_TYPE_CHILD, TICKET_TYPE_INFANT } from "../../../src/utils/constants.js"
 import logger from "../../../src/utils/logger.js";
 import * as helper from "../../../src/helpers/ValidateRequest.js";
 import TicketTypeRequest from "../../../src/pairtest/lib/TicketTypeRequest";
@@ -78,41 +79,41 @@ describe("ValidateRequest helper functions", () => {
 
     test("should throw an error when the TicketTypeRequest contains duplicate types", () => {
       expect(() => helper.validateTicketRequest([
-        new TicketTypeRequest("ADULT", 2),
-        new TicketTypeRequest("ADULT", 2),
-        new TicketTypeRequest("INFANT", 2),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 2),
       ])).toThrowError("Must only have one instance of each ticket type");
       expect(logger.debug).toHaveBeenCalledTimes(1);       
     });
 
     test("should throw an error when the TicketTypeRequest contains an invalid type", () => {
       expect(() => helper.validateTicketRequest([
-        new TicketTypeRequest("ADULT", 2),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
         new TicketTypeRequest("SENIOR", 1),
       ])).toThrowError("type must be ADULT, CHILD, or INFANT");     
     });
 
     test("should throw an error when the request array does not contain a TicketRequestType", () => {
       expect(() => helper.validateTicketRequest([
-        "ADULT"
+        TICKET_TYPE_ADULT
       ])).toThrowError("Should be of TicketTypeRequest type");
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });  
 
     test("should throw an error when the TicketTypeRequest contains 0 tickets", () => {
       expect(() => helper.validateTicketRequest([
-        new TicketTypeRequest("ADULT", 2),
-        new TicketTypeRequest("CHILD", 0),
-        new TicketTypeRequest("INFANT", 0),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 0),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 0),
       ])).toThrowError("Expected at least one ticket");
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
     test("should not throw an error when the TicketTypeRequest contains valid types and counts", () => {
       expect(() => helper.validateTicketRequest([
-        new TicketTypeRequest("ADULT", 2),
-        new TicketTypeRequest("CHILD", 2),
-        new TicketTypeRequest("INFANT", 1),
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 2),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1),
       ])).not.toThrow();
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
@@ -125,106 +126,106 @@ describe("ValidateRequest helper functions", () => {
 
     test("should throw an error when no Adult ticket is requested", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("CHILD", 2)
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 2)
       ])).toThrowError('Requires at least 1 adult to be present');
       expect(logger.debug).toHaveBeenCalledTimes(1);       
     });
 
     test("should throw an error when no Adult ticket is requested", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("CHILD", 2),
-        new TicketTypeRequest("INFANT", 2)        
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 2),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 2)        
       ])).toThrowError('Requires at least 1 adult to be present');
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
     test("should not throw an error when a single Adult ticket is requested", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 1)
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1)
       ])).not.toThrow();
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     }); 
 
      test("should not throw an error when an adult and child ticket is requested", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 1),
-        new TicketTypeRequest("CHILD", 1)        
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 1)        
       ])).not.toThrow();
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     }); 
 
     test("should not throw an error when an adult and infant ticket is requested", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 1),
-        new TicketTypeRequest("INFANT", 1)        
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1)        
       ])).not.toThrow();
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     }); 
 
     test("should throw an error when number of infants is greater than number of adults", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 1),
-        new TicketTypeRequest("INFANT", 2)        
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 2)        
       ])).toThrowError('Requires at least 1 adult per infant to be present');
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });     
    
     test("should not throw an error when number of infants is less than number of adults", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 1),
-        new TicketTypeRequest("INFANT", 1)        
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 1),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1)        
       ])).not.toThrow();
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
     test("should not throw an error when number of infants is less than number of adults", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 2),
-        new TicketTypeRequest("INFANT", 1)        
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1)        
       ])).not.toThrow();
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });  
 
     test("should not throw an error when number of infants is equal to number of adults", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 2),
-        new TicketTypeRequest("INFANT", 2)        
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 2)        
       ])).not.toThrow();
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
     test("should throw an error when total number of tickets is zero", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 0),
-        new TicketTypeRequest("INFANT", 0), 
-        new TicketTypeRequest("CHILD", 0),               
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 0),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 0), 
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 0),               
       ])).toThrowError('Must have at least one ticket or maximum of 25 tickets');
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });      
 
     test("should throw an error when total number of tickets is greater than 25", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 25),
-        new TicketTypeRequest("INFANT", 3), 
-        new TicketTypeRequest("CHILD", 4),               
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 25),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 3), 
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 4),               
       ])).toThrowError('Must have at least one ticket or maximum of 25 tickets');
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
     test("should throw an error when total number of tickets is negative", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", -1),
-        new TicketTypeRequest("INFANT", -1), 
-        new TicketTypeRequest("CHILD", -1),               
+        new TicketTypeRequest(TICKET_TYPE_ADULT, -1),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, -1), 
+        new TicketTypeRequest(TICKET_TYPE_CHILD, -1),               
       ])).toThrowError("Must have at least one ticket or maximum of 25 tickets");
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
 
     test("should not throw an error when total number of tickets is 25", () => {
       expect(() => helper.validatePurchaseTypeRules([
-        new TicketTypeRequest("ADULT", 23),
-        new TicketTypeRequest("INFANT", 1), 
-        new TicketTypeRequest("CHILD", 1),               
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 23),
+        new TicketTypeRequest(TICKET_TYPE_INFANT, 1), 
+        new TicketTypeRequest(TICKET_TYPE_CHILD, 1),               
       ])).not.toThrow();
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });
@@ -233,7 +234,7 @@ describe("ValidateRequest helper functions", () => {
   describe("ValidateRequest tests", () => {
     test("should pass validation", () => {
       expect(() => helper.validateRequest(123, [
-        new TicketTypeRequest("ADULT", 2)
+        new TicketTypeRequest(TICKET_TYPE_ADULT, 2)
       ])).not.toThrow()
       expect(logger.debug).toHaveBeenCalledTimes(4);
     });
@@ -241,7 +242,7 @@ describe("ValidateRequest helper functions", () => {
     test("should fail account id validation", () => {
 
       try {
-        helper.validateRequest(0, [new TicketTypeRequest("ADULT", 2)]);
+        helper.validateRequest(0, [new TicketTypeRequest(TICKET_TYPE_ADULT, 2)]);
       } catch (error) {
         expect(error.message).toEqual("Invalid account ID - must be greater than 0");
       }
@@ -263,7 +264,7 @@ describe("ValidateRequest helper functions", () => {
     test("should fail ticket rules validation", () => {
 
       try {
-        helper.validateRequest(1, [new TicketTypeRequest("INFANT", 1)]);
+        helper.validateRequest(1, [new TicketTypeRequest(TICKET_TYPE_INFANT, 1)]);
       } catch (error) {
         expect(error.message).toEqual("Requires at least 1 adult to be present");
       }

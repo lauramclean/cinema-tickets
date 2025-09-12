@@ -1,24 +1,25 @@
 import { describe, test, expect } from "vitest";
 
-import TicketTypeRequest from "../../../../src/pairtest/lib/TicketTypeRequest.js"
+import { TICKET_TYPE_ADULT, TICKET_TYPE_CHILD, TICKET_TYPE_INFANT } from "../../../../src/utils/constants.js";
+import TicketTypeRequest from "../../../../src/pairtest/lib/TicketTypeRequest.js";
 
 describe("TicketTypeRequest functionality", () => {
  
   test("should be valid when adult is set as the type", () => {
-    const type = new TicketTypeRequest("ADULT", 2);
-    expect(type.getTicketType()).toEqual("ADULT");
+    const type = new TicketTypeRequest(TICKET_TYPE_ADULT, 2);
+    expect(type.getTicketType()).toEqual(TICKET_TYPE_ADULT);
     expect(type.getNoOfTickets()).toEqual(2);
   });
 
   test("should be valid when child is set as the type", () => {
-    const type = new TicketTypeRequest("CHILD", 1);
-    expect(type.getTicketType()).toEqual("CHILD");
+    const type = new TicketTypeRequest(TICKET_TYPE_CHILD, 1);
+    expect(type.getTicketType()).toEqual(TICKET_TYPE_CHILD);
     expect(type.getNoOfTickets()).toEqual(1);
   });
 
   test("should be valid when infant is set as the type", () => {
-    const type = new TicketTypeRequest("INFANT", 1);
-    expect(type.getTicketType()).toEqual("INFANT");
+    const type = new TicketTypeRequest(TICKET_TYPE_INFANT, 1);
+    expect(type.getTicketType()).toEqual(TICKET_TYPE_INFANT);
     expect(type.getNoOfTickets()).toEqual(1);
   });
 
@@ -31,16 +32,16 @@ describe("TicketTypeRequest functionality", () => {
   });
 
   test("should throw a TypeError when the ticket count is set as null", () => {
-    expect(() => new TicketTypeRequest("ADULT", null)).toThrow(TypeError);
+    expect(() => new TicketTypeRequest(TICKET_TYPE_ADULT, null)).toThrow(TypeError);
   });
 
   test("should throw a TypeError when the ticket count is set as a string", () => {
-    expect(() => new TicketTypeRequest("ADULT", '124')).toThrow(TypeError);
+    expect(() => new TicketTypeRequest(TICKET_TYPE_ADULT, '124')).toThrow(TypeError);
   });
 
   test("should not throw an error when the ticket count is set as a negative integer", () => {
-    const type = new TicketTypeRequest("ADULT", -1);
-    expect(type.getTicketType()).toEqual("ADULT");
+    const type = new TicketTypeRequest(TICKET_TYPE_ADULT, -1);
+    expect(type.getTicketType()).toEqual(TICKET_TYPE_ADULT);
     expect(type.getNoOfTickets()).toEqual(-1);
   });
 });

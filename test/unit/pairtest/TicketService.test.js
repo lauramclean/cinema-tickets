@@ -1,6 +1,7 @@
 import { describe, test, vi, beforeEach, expect, afterEach } from "vitest";
 import * as validationHelper from "../../../src/helpers/ValidateRequest.js";
 import * as calculationHelper from "../../../src/helpers/CalculationHelper.js";
+import { TICKET_TYPE_ADULT, TICKET_TYPE_CHILD, TICKET_TYPE_INFANT } from "../../../src/utils/constants.js";
 import logger from "../../../src/utils/logger.js";
 import TicketService from "../../../src/pairtest/TicketService.js";
 import TicketTypeRequest from "../../../src/pairtest/lib/TicketTypeRequest";
@@ -20,9 +21,9 @@ describe("TicketService tests", () => {
   const seatNumbers = 2;
   const totalCost = 20;
   const ticketTypeRequests = [
-    new TicketTypeRequest("ADULT", 2),
-    new TicketTypeRequest("CHILD", 2),
-    new TicketTypeRequest("INFANT", 1)
+    new TicketTypeRequest(TICKET_TYPE_ADULT, 2),
+    new TicketTypeRequest(TICKET_TYPE_CHILD, 2),
+    new TicketTypeRequest(TICKET_TYPE_INFANT, 1)
   ];
   
   beforeEach(() => {
@@ -60,7 +61,7 @@ describe("TicketService tests", () => {
     expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: invalid account id`}));
     expect(logger.info).not.toHaveBeenCalled();    
     expect(validationHelper.validateRequest).toThrowError(TypeError);
-    //expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId);//expect.anything()
+    expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId, expect.any(Array));
     expect(calculationHelper.calculateTotalCost).not.toHaveBeenCalled();
     expect(calculationHelper.calculateNumSeats).not.toHaveBeenCalled();
     expect(TicketPaymentService.prototype.makePayment).not.toHaveBeenCalled();
