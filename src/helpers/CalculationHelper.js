@@ -4,6 +4,7 @@ import logger from "../utils/logger.js";
 /**
  * 
  * @param  {Array} ticketTypeRequests 
+ * @description calculates the total number of seats required 
  * @returns {Number} number of seats required
  */
 export const calculateNumSeats = (ticketTypeRequests) => {
@@ -11,9 +12,7 @@ export const calculateNumSeats = (ticketTypeRequests) => {
   
   let numSeats = 0;
 
-  //for each ticket type that has been requested, obtain from the 
-  //mapping whether a seat is required, if so, multiply it by the number
-  //of tickets requested. 
+  //Seats may be optional, if required for the given ticket type multiply by num tickets requested
   ticketTypeRequests?.forEach(requestedType => {
     const seatRequired = TICKET_TYPE_MAP.find(i => i.type === requestedType.getTicketType())?.requireSeat;
     if (seatRequired) {  
@@ -27,7 +26,8 @@ export const calculateNumSeats = (ticketTypeRequests) => {
 
 /**
  * 
- * @param  {Array} ticketTypeRequests 
+ * @param  {Array} ticketTypeRequests
+ * @description calculates the total cost of the requested tickets
  * @returns {Number} cost of the tickets
  */
 export const calculateTotalCost = (ticketTypeRequests) => {
@@ -35,9 +35,7 @@ export const calculateTotalCost = (ticketTypeRequests) => {
 
   let totalCost = 0;
 
-  //for each ticket type that has been requested, obtain from the 
-  //mapping whether a seat is required, if so, multiply it by the number
-  //of tickets requested. 
+  //Price may be optional, if set for the given ticket type multiply by num tickets requested
   ticketTypeRequests?.forEach(requestedType => {
     const ticketPrice = TICKET_TYPE_MAP.find(i => i.type === requestedType.getTicketType())?.price;
     if (ticketPrice) {  
