@@ -27,7 +27,7 @@ export const validateAccountID = (accountId) => {
 
   logger.debug({ message: "In validateAccountID()" });
 
-  if (!Number.isInteger(accountId) || accountId < constants.MIN_ACCOUNT_ID_VALUE) {
+  if (!Number.isInteger(accountId) || accountId <= constants.MIN_ACCOUNT_ID_VALUE) {
     throw new TypeError("Invalid account ID - must be greater than 0");
   }
 }

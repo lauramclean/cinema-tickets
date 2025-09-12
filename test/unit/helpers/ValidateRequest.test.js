@@ -1,4 +1,4 @@
-import { describe, test, vi, beforeEach, afterAll, expect } from "vitest";
+import { describe, test, vi, beforeEach, afterEach, expect } from "vitest";
 
 import logger from "../../../src/utils/logger.js";
 import * as helper from "../../../src/helpers/ValidateRequest.js";
@@ -10,7 +10,7 @@ describe("ValidateRequest helper functions", () => {
     vi.spyOn(logger, "debug");
   });
 
-  afterAll(() => {
+  afterEach(() => {
     vi.clearAllMocks();
   });
 
@@ -53,8 +53,8 @@ describe("ValidateRequest helper functions", () => {
       expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
-    test("should not throw an error when passing accountID where value is zero", () => {
-      expect(() => helper.validateAccountID(0)).not.toThrow();
+    test("should throw an error when passing accountID where value is zero", () => {
+      expect(() => helper.validateAccountID(0)).toThrowError('Invalid account ID - must be greater than 0');
       expect(logger.debug).toHaveBeenCalledTimes(1);      
     });    
   });
@@ -252,7 +252,7 @@ describe("ValidateRequest helper functions", () => {
     test("should fail ticket type validation", () => {
 
       try {
-        helper.validateRequest(0, []);
+        helper.validateRequest(1, []);
       } catch (error) {
         expect(error.message).toEqual("Invalid request type - requires at least 1 ticket request to be present");
       }
@@ -263,7 +263,7 @@ describe("ValidateRequest helper functions", () => {
     test("should fail ticket rules validation", () => {
 
       try {
-        helper.validateRequest(0, [new TicketTypeRequest("INFANT", 1)]);
+        helper.validateRequest(1, [new TicketTypeRequest("INFANT", 1)]);
       } catch (error) {
         expect(error.message).toEqual("Requires at least 1 adult to be present");
       }
