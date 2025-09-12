@@ -17,6 +17,8 @@ describe("TicketService tests", () => {
  
   const ticketService = new TicketService();
   const accountId = 123;
+  const seatNumbers = 2;
+  const totalCost = 20;
   const ticketTypeRequests = [
     new TicketTypeRequest("ADULT", 2),
     new TicketTypeRequest("CHILD", 2),
@@ -40,14 +42,14 @@ describe("TicketService tests", () => {
   test("should throw an error when validation of the request fails", () => {
 
     vi.mocked(validationHelper.validateRequest).mockImplementation(() => { throw new TypeError("invalid account id")});
-    vi.mocked(calculationHelper.calculateTotalCost).mockImplementation(() => { return 20 });
-    vi.mocked(calculationHelper.calculateNumSeats).mockImplementation(() => { return 2 });
+    vi.mocked(calculationHelper.calculateTotalCost).mockImplementation(() => { return totalCost });
+    vi.mocked(calculationHelper.calculateNumSeats).mockImplementation(() => { return seatNumbers });
+    TicketPaymentService.prototype.makePayment = vi.fn().mockImplementation(() => {});
+    SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => {});
 
-    TicketPaymentService.prototype.makePayment = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("something failed"); });
-    SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("something failed"); });
-
+    // Test the service
     try {
-     ticketService.purchaseTickets(accountId, ticketTypeRequests);
+      ticketService.purchaseTickets(accountId, ticketTypeRequests);
     } catch (error) {
       expect(error.message).toEqual("invalid account id");
     }
@@ -56,7 +58,9 @@ describe("TicketService tests", () => {
 
     expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
     expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: invalid account id`}));
-    expect(validationHelper.validateTicketRequest).not.toHaveBeenCalled();
+    expect(logger.info).not.toHaveBeenCalled();    
+    expect(validationHelper.validateRequest).toThrowError(TypeError);
+    //expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId);//expect.anything()
     expect(calculationHelper.calculateTotalCost).not.toHaveBeenCalled();
     expect(calculationHelper.calculateNumSeats).not.toHaveBeenCalled();
     expect(TicketPaymentService.prototype.makePayment).not.toHaveBeenCalled();
@@ -65,32 +69,79 @@ describe("TicketService tests", () => {
 
   test("should throw an error vhen the payment service returns an error", () => {
 
-    //mock the validation helper so it doesnt throw an error
-    //mock the calculation helper to return a value
-    //mock the payment service to return an error
-    //spyon booking service to not be called.
-    //expect purchaseTickets to throw the error
-    expect(() => { ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrow() });
+    vi.mocked(validationHelper.validateRequest).mockImplementation(() => {});
+    vi.mocked(calculationHelper.calculateTotalCost).mockImplementation(() => { return totalCost });
+    vi.mocked(calculationHelper.calculateNumSeats).mockImplementation(() => { return seatNumbers });
+    TicketPaymentService.prototype.makePayment = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("payment failed"); });
+    SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => {});
+
+    // Test the service
+    try {
+      ticketService.purchaseTickets(accountId, ticketTypeRequests);
+    } catch (error) {
+      expect(error.message).toEqual("payment failed");
+    }
+   // expect(() => { ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrow() });
+
+    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
+    expect(logger.info).not.toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: payment failed`}));
+    //expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId);//expect.anything()
+    expect(calculationHelper.calculateTotalCost).toHaveBeenCalled();
+    expect(calculationHelper.calculateNumSeats).toHaveBeenCalled();
+    expect(TicketPaymentService.prototype.makePayment).toHaveBeenCalledWith(accountId, totalCost);
+    expect(TicketPaymentService.prototype.makePayment).toThrowError(InvalidPurchaseException);  
+    expect(SeatReservationService.prototype.reserveSeat).not.toHaveBeenCalled();   
   });
 
   test("should throw an error vhen the booking service returns an error", () => {
 
-    //mock the validation helper so it doesnt throw an error
-    //mock the calculation helper to return a value
-    //mock the payment service to succeed
-    //mock the booking service to throw an error
-    //expect purchaseTickets to throw the error
-    expect(() => { ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrow() });
+    vi.mocked(validationHelper.validateRequest).mockImplementation(() => {});
+    vi.mocked(calculationHelper.calculateTotalCost).mockImplementation(() => { return totalCost });
+    vi.mocked(calculationHelper.calculateNumSeats).mockImplementation(() => { return seatNumbers });
+    TicketPaymentService.prototype.makePayment = vi.fn().mockImplementation(() => {});
+    SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => { throw new InvalidPurchaseException("seat reservations failed"); });
+
+    // Test the service
+    try {
+      ticketService.purchaseTickets(accountId, ticketTypeRequests);
+    } catch (error) {
+      expect(error.message).toEqual("seat reservations failed");
+    }
+   // expect(() => { ticketService.purchaseTickets(accountId, ticketTypeRequests).toThrow() });
+
+    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
+    expect(logger.error).toHaveBeenCalledWith(expect.objectContaining({ message: `Purchase request unsuccessful: seat reservations failed`}));
+    expect(logger.info).not.toHaveBeenCalled();
+    //expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId);//expect.anything()
+    expect(calculationHelper.calculateTotalCost).toHaveBeenCalled();
+    expect(calculationHelper.calculateNumSeats).toHaveBeenCalled();
+    expect(TicketPaymentService.prototype.makePayment).toHaveBeenCalledWith(accountId, totalCost);
+    expect(SeatReservationService.prototype.reserveSeat).toHaveBeenCalledWith(accountId, seatNumbers);
+    expect(SeatReservationService.prototype.reserveSeat).toThrowError(InvalidPurchaseException);  
   });
 
   test("should return the the cost of the purchase with the number of allocated seats", () => {
 
-    //mock the validation helper so it doesnt throw an error
-    //mock the calculation helper to return a value
-    //mock the payment service to succeed
-    //mock the booking service to succeed
-    //expect purchaseTickets to return with the cost and seats allocated
+    vi.mocked(validationHelper.validateRequest).mockImplementation(() => {});
+    vi.mocked(calculationHelper.calculateTotalCost).mockImplementation(() => { return totalCost });
+    vi.mocked(calculationHelper.calculateNumSeats).mockImplementation(() => { return seatNumbers });
+    TicketPaymentService.prototype.makePayment = vi.fn().mockImplementation(() => {});
+    SeatReservationService.prototype.reserveSeat = vi.fn().mockImplementation(() => {});
+
+    // Test the service  
     const purchase = ticketService.purchaseTickets(accountId, ticketTypeRequests);
+
     expect(purchase).toBeDefined();
+    expect(purchase).toEqual({ price: totalCost, seatsReserved: seatNumbers });
+
+    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({ message: "In purchaseTickets()"}));
+    expect(logger.info).toHaveBeenCalledWith(expect.objectContaining({ message: `Booking successful. Total cost £${totalCost} and ${seatNumbers} seats booked`}));
+    expect(logger.error).not.toHaveBeenCalled();
+    //expect(validationHelper.validateRequest).toHaveBeenCalledWith(accountId);//expect.anything()
+    expect(calculationHelper.calculateTotalCost).toHaveBeenCalled();
+    expect(calculationHelper.calculateNumSeats).toHaveBeenCalled();
+    expect(TicketPaymentService.prototype.makePayment).toHaveBeenCalledWith(accountId, totalCost);
+    expect(SeatReservationService.prototype.reserveSeat).toHaveBeenCalledWith(accountId, seatNumbers);
   });
 });
