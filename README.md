@@ -104,6 +104,11 @@ The config object is stored in ./config.js which can be extended in future to ho
 "start": "LOG_LEVEL=debug node app.js",  
 ```
 
+## CI pipeline
+
+A [github workflow](https://github.com/lauramclean/cinema-tickets/actions/workflows/github_ci.yml) with actions to run the lint script and test script has been configured.
+The workflow will be triggered on push to branch events.
+
 ## Future improvements
 
 - Expand range of ticket types to cover students, concessions etc 
